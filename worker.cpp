@@ -1,3 +1,5 @@
+#include "Worker/Worker.h"
+#include "CurlEasyPtr.h"
 #include <iostream>
 
 /// Worker process that receives a list of URLs and reports the result
@@ -10,7 +12,22 @@ int main(int argc, char* argv[]) {
       return 1;
    }
 
-   // TODO: implement assignment 4
+   CurlGlobalSetup curlSetup;
+
+   // TODO Use dynamic addresses instead. Ta se a ver a pass no runTest.sh, onde usam localhost e nao funfa
+   Worker w("127.0.0.1", atoi(argv[2]));
+   w.run();
+
+   // TODO:
+   //    1. connect to coordinator specified by host and port
+   //       getaddrinfo(), connect(), see: https://beej.us/guide/bgnet/html/#system-calls-or-bust
+   //    2. receive work from coordinator
+   //       recv(), matching the coordinator's send() work
+   //    3. process work
+   //       see coordinator.cpp
+   //    4. report result
+   //       send(), matching the coordinator's recv()
+   //    5. repeat
 
    return 0;
 }

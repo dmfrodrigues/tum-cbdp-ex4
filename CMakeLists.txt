@@ -12,12 +12,24 @@ find_package(CURL REQUIRED)
 add_executable(coordinator
         coordinator.cpp
         CurlEasyPtr.cpp
+        Message/Message.cpp
+        Message/MessageFactory.cpp
+        Message/MessageHeartbeat.cpp
+        Message/MessageWork.cpp
+        Socket/Socket.cpp
+        Coordinator/Coordinator.cpp
         AzureBlobClient.cpp AzureBlobClient.h)
 target_link_libraries(coordinator PUBLIC CURL::libcurl azure-storage-lite)
 
 add_executable(worker
         worker.cpp
         CurlEasyPtr.cpp
+        Message/Message.cpp
+        Message/MessageFactory.cpp
+        Message/MessageHeartbeat.cpp
+        Message/MessageWork.cpp
+        Worker/Worker.cpp
+        Socket/Socket.cpp
         AzureBlobClient.cpp AzureBlobClient.h)
 target_link_libraries(worker PUBLIC CURL::libcurl azure-storage-lite)
 

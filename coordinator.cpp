@@ -1,6 +1,6 @@
-#include "AzureBlobClient.h"
+#include "Coordinator/Coordinator.h"
+#include "CurlEasyPtr.h"
 #include <iostream>
-#include <string>
 
 /// Leader process that coordinates workers. Workers connect on the specified port
 /// and the coordinator distributes the work of the CSV file list.
@@ -12,30 +12,11 @@ int main(int argc, char* argv[]) {
       return 1;
    }
 
-   // TODO: add your azure credentials, get them via:
-   // az storage account list
-   // az account get-access-token --resource https://storage.azure.com/ -o tsv --query accessToken
-   static const std::string accountName = "YOUR_STORAGE_ACCOUNT";
-   static const std::string accountToken = "XXX";
-   auto blobClient = AzureBlobClient(accountName, accountToken);
+   CurlGlobalSetup curlSetup;
 
-   std::cerr << "Creating Azure blob container" << std::endl;
-   blobClient.createContainer("cbdp-assignment4");
-
-   std::cerr << "Uploading a blob" << std::endl;
-   {
-      std::stringstream upload;
-      upload << "Hello World!" << std::endl;
-      blobClient.uploadStringStream("hello", upload);
-   }
-
-   std::cerr << "Downloading the blob again" << std::endl;
-   auto downloaded = blobClient.downloadStringStream("hello");
-
-   std::cerr << "Recieved: " << downloaded.view() << std::endl;
-
-   std::cerr << "Deleting the container" << std::endl;
-   blobClient.deleteContainer();
+   Coordinator coordinator = Coordinator("127.0.0.1", atoi(argv[2]));
+   std::cout << coordinator.processFile(argv[1]);
+   std::cout.flush();
 
    return 0;
 }
