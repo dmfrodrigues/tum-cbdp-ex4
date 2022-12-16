@@ -22,7 +22,7 @@ typedef struct workerDetails workerDetails;
 
 class Coordinator {
 private:
-   const static int POLL_TIMEOUT = 10000;
+   const static int POLL_TIMEOUT = 120000;
 
    Socket socket;
    std::map<int, workerDetails> workers;
