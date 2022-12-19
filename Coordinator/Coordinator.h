@@ -31,7 +31,7 @@ private:
    std::queue<std::string> remainingPartitions;
 
    /// @brief For each ID of a range, store subpartitions that are done
-   std::map<int, std::list<std::string>> doneSubpartitions;
+   std::map<size_t, std::list<std::string>> doneSubpartitions;
 
    /// @brief Set of finalized partial results. When this structure is full,
    /// the coordinator can merge all partial results.
@@ -39,6 +39,7 @@ private:
 
    // bool processWorkerResult(int sd);
    void sendWork(int sd);
+   bool processWorkerResult(int sd);
    void acceptConnection();
    void loop();
    void cleanup();

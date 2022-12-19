@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+#include "MessageHeartbeat.h"
+#include "MessageSplit.h"
+#include "MessageMerge.h"
+
 using namespace std;
 
 Message* MessageFactory::factoryMethod(stringstream &ss) const {
@@ -16,6 +20,7 @@ Message* MessageFactory::factoryMethod(stringstream &ss) const {
     switch(operation){
         case Message::Operation::HEARTBEAT: m = new MessageHeartbeat(type); break;
         case Message::Operation::SPLIT    : m = new MessageSplit(type); break;
+        case Message::Operation::MERGE    : m = new MessageMerge(type); break;
         default: throw logic_error("Unknown operation: " + to_string(static_cast<uint8_t>(operation)));
     }
 

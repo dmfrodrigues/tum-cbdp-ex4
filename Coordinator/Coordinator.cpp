@@ -14,6 +14,9 @@
 #include <cassert>
 #include <algorithm>
 
+#include "../Message/MessageHeartbeat.h"
+#include "../Message/MessageSplit.h"
+#include "../Message/MessageMerge.h"
 
 using namespace std;
 
@@ -55,7 +58,7 @@ void Coordinator::acceptConnection() {
 }
 
 void Coordinator::sendWork(int sd) {
-   if(!remainingPartitions.empty()){
+   if (!remainingPartitions.empty()) {
       string partitionURI = remainingPartitions.front();
       remainingPartitions.pop();
 
@@ -66,7 +69,41 @@ void Coordinator::sendWork(int sd) {
       #ifdef LOG
       cout << "[C] Dispatched partition '" << partitionURI << "' to worker " << sd << endl;
       #endif
+   } else {
+      // Find a partial result that already has all of the necessary subpartitions
    }
+ }
+
+bool Coordinator::processWorkerResult(int sd) {
+   WorkerDetails &wd = workers.at(sd);
+
+   Message *mptr = wd.socket.receive();
+   if (mptr == nullptr) {
+      #ifdef LOG
+      cout << "[C] Worker " << sd << " has died" << endl;
+      #endif
+      return false;
+   }
+
+   switch(mptr->operation){
+      case Message::Operation::SPLIT: {
+         MessageSplit &m = *dynamic_cast<MessageSplit*>(mptr);
+         for(size_t i = 0; i < m.subpartitionsURI.size(); ++i){
+            doneSubpartitions[i].emplace_back(m.subpartitionsURI[i]);
+         }
+         break;
+      }
+      case Message::Operation::MERGE: {
+         MessageMerge &m = *dynamic_cast<MessageMerge*>(mptr);
+         processedPartialResults.insert(m.partialResultURI);
+         break;
+      }
+      default:
+         throw new logic_error("Strange operation " + to_string(static_cast<int>(mptr->operation)));
+   }
+
+   sendWork(sd);
+   return true;
 }
 
 void Coordinator::loop() {
@@ -92,9 +129,7 @@ void Coordinator::loop() {
             workersAwaitingConnection = true;
          } else {
             // Worker socket input
-            // if (!processWorkerResult(element.fd)) {
-            //    deadWorkers.push_back(element.fd);
-            // }
+            processWorkerResult(element.fd);
          }
       } else if (element.revents & (POLLHUP | POLLNVAL | POLLERR)) {
          // Closed socket
