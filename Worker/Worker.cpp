@@ -52,6 +52,14 @@ void Worker::run() {
    }
 }
 
+string Worker::extractDomain(const string &s){
+   size_t idx1 = s.find("://");
+   size_t idx2 = s.find("/", idx1+3);
+   if(idx1 == string::npos || idx2 == string::npos)
+      return s;
+   else return s.substr(idx1+3, idx2 - (idx1 + 3));
+}
+
 size_t Worker::processChunk(std::stringstream &chunkName) {
    size_t result = 0;
    for (std::string row; std::getline(chunkName, row, '\n');) {
