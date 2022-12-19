@@ -128,6 +128,8 @@ bool Coordinator::processWorkerResult(int sd) {
          throw new logic_error("Strange operation " + to_string(static_cast<int>(mptr->operation)));
    }
 
+   delete mptr;
+
    sendWork(sd);
    return true;
 }
