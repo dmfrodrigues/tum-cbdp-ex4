@@ -17,10 +17,10 @@
 
 using namespace std;
 
-Coordinator::Coordinator(const std::string &name, const int port) {
-   socket.bind(name, port);
+Coordinator::Coordinator(const int port) {
+   socket.bind(port);
    #ifdef LOG
-   cout << "[C] " << name << " " << port << endl;
+   cout << "[C] " << port << endl;
    #endif
 
    // pollSockets.reserve(20);
