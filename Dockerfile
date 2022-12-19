@@ -8,7 +8,6 @@ FROM base as coordinator
 
 COPY cmake-build-debug/coordinator .
 CMD exec ./coordinator https://db.in.tum.de/teaching/ws2223/clouddataprocessing/data/filelist.csv "$CBDP_PORT"
-EXPOSE 4242
 
 FROM base as worker
 
