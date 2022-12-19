@@ -9,7 +9,7 @@
 class Socket {
 private:
     static const int BACKLOG = 10;
-    static const int NUMBER_RETRIES_CONNECT = 20;
+    static const int NUMBER_RETRIES_CONNECT = 20000;
     static const useconds_t SLEEP_MICROS = 200000;
 
     static MessageFactory messageFactory;

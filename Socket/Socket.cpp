@@ -73,8 +73,9 @@ void Socket::connect(const string &name, int port) {
    int i = 0;
    while (!connected && i < NUMBER_RETRIES_CONNECT) {
       if (::connect(sd, req->ai_addr, req->ai_addrlen) == -1) {
-        //  perror("connect() failed");
+         cerr << "[W] Failed to connect to " << name << " " << port << endl;
          usleep(SLEEP_MICROS);
+
          ++i;
       } else {
          connected = true;
