@@ -36,7 +36,7 @@ void Coordinator::acceptConnection() {
    Socket worker = socket.accept();
    
    // Add entry to the workers map
-   workerDetails wd = {};
+   WorkerDetails wd = {};
    wd.socket = worker;
    wd.work = {list<string>(),};
    workers.insert({worker.getSd(), wd});
@@ -55,57 +55,18 @@ void Coordinator::acceptConnection() {
 }
 
 void Coordinator::sendWork(int sd) {
-   if (remainingChunks.empty()) return;
-   
-   string nextChunk = remainingChunks.front();
-   remainingChunks.pop();   
-   
-   unfinishedChunks += 1;
+   if(!remainingPartitions.empty()){
+      string partitionURI = remainingPartitions.front();
+      remainingPartitions.pop();
 
-   workerDetails &wd = workers.at(sd);
-   wd.work.push_back(nextChunk);
+      MessageSplit m(Message::Type::REQUEST, partitionURI);
+      WorkerDetails &wd = workers.at(sd);
+      wd.socket.send(&m);
 
-   MessageWork m(Message::Type::REQUEST);
-   m.chunkURLs = vector<string>({nextChunk});
-   wd.socket.send(&m);
-
-   #ifdef LOG
-   cout << "[C] Dispatched chunk '" << nextChunk << "' to worker " << sd << endl;
-   #endif
-}
-
-bool Coordinator::processWorkerResult(int sd) {
-   workerDetails &wd = workers.at(sd);
-
-   Message *m = wd.socket.receive();
-   if (m == nullptr) {
       #ifdef LOG
-      cout << "[C] Worker " << sd << " has died" << endl;
+      cout << "[C] Dispatched partition '" << partitionURI << "' to worker " << sd << endl;
       #endif
-      return false;
    }
-
-   MessageWork *mw = dynamic_cast<MessageWork*>(m); 
-
-   auto it = find(wd.work.begin(), wd.work.end(), mw->chunkURLs.at(0));
-   if (it == wd.work.end()) {
-      cerr << "[C] Worker " << sd << " returned unexpected chunk '" << mw->chunkURLs.at(0) << "'" << endl;
-      delete mw;
-      return false;
-   }
-
-   wd.work.erase(it);
-   totalResults += mw->result;
-   unfinishedChunks -= 1;
-
-   #ifdef LOG
-   cout << "[C] Worker " << sd << " processed chunk '" << mw->chunkURLs[0] << "' with result " << mw->result << endl;
-   #endif
-
-   delete mw;
-
-   sendWork(sd);
-   return true;
 }
 
 void Coordinator::loop() {
@@ -131,9 +92,9 @@ void Coordinator::loop() {
             workersAwaitingConnection = true;
          } else {
             // Worker socket input
-            if (!processWorkerResult(element.fd)) {
-               deadWorkers.push_back(element.fd);
-            }
+            // if (!processWorkerResult(element.fd)) {
+            //    deadWorkers.push_back(element.fd);
+            // }
          }
       } else if (element.revents & (POLLHUP | POLLNVAL | POLLERR)) {
          // Closed socket
@@ -149,40 +110,13 @@ void Coordinator::loop() {
    }
 
    if (workersAwaitingConnection) acceptConnection();
-   for (int dw : deadWorkers) cleanupDeadWorker(dw);   
-}
-
-void Coordinator::cleanupDeadWorker(int worker) {
-
-   #ifdef LOG
-   cout << "[C] Cleaning dead worker " << worker << endl;
-   #endif
-
-   // Remove from polled sockets
-   for (auto it = pollSockets.begin(); it != pollSockets.end(); ++it) {
-      if (it->fd == worker) {
-         pollSockets.erase(it);
-         break;
-      }
-   }
-
-   workerDetails wd = workers.at(worker);
-   wd.socket.close();
-
-   // Redistribute pending work
-   for (const auto &elem : wd.work) {
-      remainingChunks.push(elem);
-      unfinishedChunks -= 1;
-   }
-
-   workers.erase(worker);
 }
 
 void Coordinator::cleanup() {
    // TODO:
 }
 
-size_t Coordinator::processFile(std::string listUrl) {
+vector<pair<int, string>> Coordinator::processFile(std::string listUrl) {
    //    1. Allow workers to connect
    //       socket(), bind(), listen(), accept(), see: https://beej.us/guide/bgnet/html/#system-calls-or-bust
    //    2. Distribute the following work among workers
@@ -190,35 +124,35 @@ size_t Coordinator::processFile(std::string listUrl) {
    //    3. Collect all results
    //       recv() the results
    // Hint: Think about how you track which worker got what work
-
-   totalResults = 0;
-   unfinishedChunks = 0;
    
    // Download the file list
    auto curl = CurlEasyPtr::easyInit();
    curl.setUrl(listUrl);
-   stringstream chunks = curl.performToStringStream();
+   stringstream ss = curl.performToStringStream();
 
 
-   string nextChunk;
+
+   string nextPartition;
    do {
-      getline(chunks, nextChunk, '\n');
-      if (nextChunk.empty()) continue;
+      getline(ss, nextPartition, '\n');
+      if (nextPartition.empty()) continue;
 
-      remainingChunks.push(nextChunk);
-   } while(!chunks.eof());
+      remainingPartitions.push(nextPartition);
+   } while(!ss.eof());
 
+   // size_t numberPartitions = remainingPartitions.size();
 
    do { // Until result
       loop();
-   } while (unfinishedChunks > 0 || !remainingChunks.empty());
+   } while (true);
 
    // Cleanup
    cleanup();
 
-   #ifdef LOG
-   cout << "[C] Finished processing file, found " << totalResults << " matches" << endl;
-   #endif
+   // #ifdef LOG
+   // cout << "[C] Finished processing file, found " << totalResults << " matches" << endl;
+   // #endif
 
-   return totalResults;
+   vector<pair<int, string>> results;
+   return results;
 }

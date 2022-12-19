@@ -14,36 +14,39 @@
 #include "../Socket/Socket.h"
 
 
-struct workerDetails {
+struct WorkerDetails {
    std::list<std::string> work;
    Socket socket;
 };
-typedef struct workerDetails workerDetails;
 
 class Coordinator {
 private:
    const static int POLL_TIMEOUT = 120000;
 
    Socket socket;
-   std::map<int, workerDetails> workers;
+   std::map<int, WorkerDetails> workers;
    std::vector<struct pollfd> pollSockets;
    
-   std::queue<std::string> remainingChunks;
+   /// @brief Partitions that were not yet subpartitioned
+   std::queue<std::string> remainingPartitions;
 
-   size_t totalResults;
-   int unfinishedChunks;
+   /// @brief For each ID of a range, store subpartitions that are done
+   std::map<int, std::list<std::string>> doneSubpartitions;
 
-   bool processWorkerResult(int sd);
+   /// @brief Set of finalized partial results. When this structure is full,
+   /// the coordinator can merge all partial results.
+   std::set<std::string> processedPartialResults;
+
+   // bool processWorkerResult(int sd);
    void sendWork(int sd);
    void acceptConnection();
    void loop();
    void cleanup();
-   void cleanupDeadWorker(int dw);
 
 
 public:
    Coordinator(const std::string& name, const int p);
-   size_t processFile(const std::string listUrl);
+   std::vector<std::pair<int, std::string>> processFile(const std::string listUrl);
 };
 
 #endif

@@ -15,7 +15,7 @@ add_executable(coordinator
         Message/Message.cpp
         Message/MessageFactory.cpp
         Message/MessageHeartbeat.cpp
-        Message/MessageWork.cpp
+        Message/MessageSplit.cpp
         Socket/Socket.cpp
         Coordinator/Coordinator.cpp
         AzureBlobClient.cpp AzureBlobClient.h)
@@ -27,7 +27,7 @@ add_executable(worker
         Message/Message.cpp
         Message/MessageFactory.cpp
         Message/MessageHeartbeat.cpp
-        Message/MessageWork.cpp
+        Message/MessageSplit.cpp
         Worker/Worker.cpp
         Socket/Socket.cpp
         AzureBlobClient.cpp AzureBlobClient.h)

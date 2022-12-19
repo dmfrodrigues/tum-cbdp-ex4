@@ -12,3 +12,5 @@ void MessageHeartbeat::serializeContents(stringstream &) const {
 bool MessageHeartbeat::deserializeContents(stringstream &ss){
     return ss.eof();
 }
+
+void MessageHeartbeat::process(Socket &) const {}

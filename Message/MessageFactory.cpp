@@ -15,7 +15,7 @@ Message* MessageFactory::factoryMethod(stringstream &ss) const {
 
     switch(operation){
         case Message::Operation::HEARTBEAT: m = new MessageHeartbeat(type); break;
-        case Message::Operation::WORK     : m = new MessageWork(type); break;
+        case Message::Operation::SPLIT    : m = new MessageSplit(type); break;
         default: throw logic_error("Unknown operation: " + to_string(static_cast<uint8_t>(operation)));
     }
 

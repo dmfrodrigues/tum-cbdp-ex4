@@ -2,7 +2,7 @@
 
 #include "Message.h"
 #include "MessageHeartbeat.h"
-#include "MessageWork.h"
+#include "MessageSplit.h"
 
 class MessageFactory {
 public:

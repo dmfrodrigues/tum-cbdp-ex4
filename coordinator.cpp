@@ -15,8 +15,10 @@ int main(int argc, char* argv[]) {
    CurlGlobalSetup curlSetup;
 
    Coordinator coordinator = Coordinator("127.0.0.1", atoi(argv[2]));
-   std::cout << coordinator.processFile(argv[1]);
-   std::cout.flush();
+   auto results = coordinator.processFile(argv[1]);
+   for(const auto &p: results){
+      std::cout << p.second << "\t" << p.first << std::endl;
+   }
 
    return 0;
 }

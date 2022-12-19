@@ -3,6 +3,8 @@
 #include <sstream>
 #include <string>
 
+class Socket;
+
 class MessageFactory;
 
 class Message {
@@ -19,13 +21,15 @@ public:
     } type;
     enum Operation : uint8_t {
         HEARTBEAT = 1,
-        WORK = 2
+        SPLIT = 2,
+        MERGE = 3
     } operation;
 
     Message(Type t, Operation op);
 
     std::string serialize() const;
-    // bool deserialize(const std::string &buf);
 
     virtual ~Message();
+
+    virtual void process(Socket &socket) const = 0;
 };

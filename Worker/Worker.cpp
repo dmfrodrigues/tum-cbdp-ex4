@@ -26,38 +26,28 @@ void Worker::run() {
       Message *m = socket.receive();
       if (m == nullptr) return;
 
-      MessageWork *mw = dynamic_cast<MessageWork*>(m); 
+      m->process(socket);
 
-      const string chunkURL = mw->chunkURLs.at(0);
-      delete mw;
+      // MessageSplit *mw = dynamic_cast<MessageSplit*>(m); 
 
-      #ifdef LOG
-      cout << "[W] Received chunk '" << chunkURL << "'" << endl;
-      #endif
+      // const string chunkURL = mw->chunkURLs.at(0);
+      // delete mw;
 
-      curl.setUrl(chunkURL);
-      std::stringstream ss = curl.performToStringStream();
-      size_t result = processChunk(ss);
+      // #ifdef LOG
+      // cout << "[W] Received chunk '" << chunkURL << "'" << endl;
+      // #endif
 
-      MessageWork response(Message::Type::RESPONSE);
-      response.result = result;
-      response.chunkURLs = vector<string>({chunkURL});
-      socket.send(&response);
+      // curl.setUrl(chunkURL);
+      // std::stringstream ss = curl.performToStringStream();
+      // size_t result = processChunk(ss);
 
-      #ifdef LOG
-      cout << "[W] Sent response of chunk '" << chunkURL << "'" << endl;
-      #endif
+      // MessageSplit response(Message::Type::RESPONSE);
+      // response.result = result;
+      // response.chunkURLs = vector<string>({chunkURL});
+      // socket.send(&response);
 
       sched_yield();
    }
-}
-
-string Worker::extractDomain(const string &s){
-   size_t idx1 = s.find("://");
-   size_t idx2 = s.find("/", idx1+3);
-   if(idx1 == string::npos || idx2 == string::npos)
-      return s;
-   else return s.substr(idx1+3, idx2 - (idx1 + 3));
 }
 
 size_t Worker::processChunk(std::stringstream &chunkName) {

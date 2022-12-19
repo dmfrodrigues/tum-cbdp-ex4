@@ -15,8 +15,6 @@ private:
 
    CurlEasyPtr curl;
 public:
-   static std::string extractDomain(const std::string &s);
-
    Worker(const std::string& coordName, const int coordPort);
    void run();
    size_t processChunk(std::stringstream& chunkName);
