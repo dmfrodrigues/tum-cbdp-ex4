@@ -57,7 +57,7 @@ void Coordinator::acceptConnection() {
    sendWork(worker.getSd());
 }
 
-void Coordinator::sendWork(int sd) {
+bool Coordinator::sendWork(int sd) {
    if (!remainingPartitions.empty()) {
       string partitionURI = remainingPartitions.front();
       remainingPartitions.pop();
@@ -69,9 +69,35 @@ void Coordinator::sendWork(int sd) {
       #ifdef LOG
       cout << "[C] Dispatched partition '" << partitionURI << "' to worker " << sd << endl;
       #endif
-   } else {
-      // Find a partial result that already has all of the necessary subpartitions
+
+      return true;
    }
+
+   // Worker is free
+   nonBusyWorkers.insert(sd);
+   #ifdef LOG
+   cout << "[C] Added worker " << sd << " as non-busy" << endl;
+   #endif
+
+   // Find a partial result that already has all of the necessary subpartitions
+   while(!nonBusyWorkers.empty() && !doneSubpartitions.empty() && doneSubpartitions.begin()->second.size() >= NUMBER_PARTITIONS){
+      size_t partialResultIdx = doneSubpartitions.begin()->first;
+      int worker = *nonBusyWorkers.begin();
+      
+      string partialResultURI = "top25." + to_string(partialResultIdx);
+      MessageMerge m(Message::Type::REQUEST, doneSubpartitions.at(partialResultIdx), partialResultURI);
+      WorkerDetails &wd = workers.at(worker);
+      wd.socket.send(&m);
+
+      #ifdef LOG
+      cout << "[C] Dispatched partial result '" << partialResultURI << "' to worker " << worker << endl;
+      #endif
+
+      nonBusyWorkers.erase(nonBusyWorkers.begin());
+      doneSubpartitions.erase(partialResultIdx);
+   }
+
+   return true;
  }
 
 bool Coordinator::processWorkerResult(int sd) {
@@ -175,7 +201,7 @@ vector<pair<int, string>> Coordinator::processFile(std::string listUrl) {
       remainingPartitions.push(nextPartition);
    } while(!ss.eof());
 
-   // size_t numberPartitions = remainingPartitions.size();
+   NUMBER_PARTITIONS = remainingPartitions.size();
 
    do { // Until result
       loop();

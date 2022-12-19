@@ -94,7 +94,7 @@ void MessageMerge::process(Socket& socket) const {
 
    for (size_t i = 0; i < min(size_t(NUMBER_RESULTS), outTemp.size()); ++i) {
       const auto& elem = outTemp[i];
-      out << elem.second << " " << elem.first << "\n";
+      out << elem.first << elem.second << "\n";
    }
 
    cerr << "[W]     Done printing partial result to " << partialResultURI << endl;
@@ -103,7 +103,7 @@ void MessageMerge::process(Socket& socket) const {
    MessageMerge response(Message::Type::RESPONSE);
    response.partialResultURI = partialResultURI;
 
-   cerr << "[W] Done processing partition " << partialResultURI << endl;
+   cerr << "[W] Done processing partial result " << partialResultURI << endl;
 
    socket.send(&response);
 }

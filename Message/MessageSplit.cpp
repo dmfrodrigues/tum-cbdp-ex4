@@ -87,11 +87,11 @@ void MessageSplit::process(Socket &socket) const {
    MessageSplit response(Message::Type::RESPONSE);
    response.partitionURI = partitionURI;
 
-   for(int i = 0; i < NUMBER_SUBPARTITIONS; ++i){
+   for (int i = 0; i < NUMBER_SUBPARTITIONS; ++i) {
       string outFilename = partitionURI.substr(partitionURI.find_last_of("/")+1) + "." + to_string(i);
       cerr << "[W]     Printing subpartition " << outFilename << endl;
       ofstream out(outFilename);
-      for(const auto &p: countings.at(i)){
+      for (const auto &p: countings.at(i)) {
          out << p.second << " " << p.first << "\n";
       }
       cerr << "[W]     Done printing subpartition to " << outFilename << endl;
