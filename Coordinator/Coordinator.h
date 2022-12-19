@@ -42,7 +42,7 @@ private:
 
 
 public:
-   Coordinator(const std::string& name, const int p);
+   Coordinator(const int p);
    size_t processFile(const std::string listUrl);
 };
 

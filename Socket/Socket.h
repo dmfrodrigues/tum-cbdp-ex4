@@ -14,7 +14,7 @@ private:
 
     static MessageFactory messageFactory;
 
-    void init(const std::string &name, int port);
+    void init(const char *name, int port, bool is_listening);
 
     addrinfo *req = nullptr;
     int sd;
@@ -25,7 +25,7 @@ public:
 
     int getSd() const;
 
-    void bind(const std::string &name, int port);
+    void bind(int port);
     void connect(const std::string &name, int port);
 
     Socket accept();

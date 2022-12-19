@@ -19,17 +19,23 @@ int Socket::getSd() const {
     return sd;
 }
 
-void Socket::init(const string &name, int port) {
+void Socket::init(const char *name, int port, bool is_listening) {
    addrinfo hints{};
    memset(&hints, 0, sizeof(addrinfo));
 
-   hints.ai_family = AF_INET;
    hints.ai_addrlen = sizeof(struct sockaddr_in);
 
-   hints.ai_socktype = SOCK_STREAM;
-   hints.ai_flags = IPPROTO_TCP;
 
-   if (getaddrinfo(name.c_str(), to_string(port).c_str(), &hints, &req) != 0) {
+   if (is_listening) {
+      hints.ai_flags = AI_PASSIVE;
+      hints.ai_family = AF_INET6;
+      hints.ai_socktype = SOCK_STREAM;
+   } else {
+      hints.ai_flags = IPPROTO_TCP;
+      hints.ai_socktype = SOCK_STREAM;
+   }
+
+   if (getaddrinfo(name, to_string(port).c_str(), &hints, &req) != 0) {
       throw runtime_error("getaddrinfo() failed");
    }
 
@@ -45,8 +51,8 @@ void Socket::init(const string &name, int port) {
    }
 }
 
-void Socket::bind(const string &name, int port) {
-   init(name, port);
+void Socket::bind(int port) {
+   init(NULL, port, true);
 
    if (::bind(sd, req->ai_addr, req->ai_addrlen) == -1) {
       throw runtime_error("perform_bind() failed");
@@ -67,7 +73,7 @@ Socket Socket::accept() {
 }
 
 void Socket::connect(const string &name, int port) {
-   init(name, port);
+   init(name.c_str(), port, false);
 
    bool connected = false;
    int i = 0;
