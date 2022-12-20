@@ -21,7 +21,7 @@ struct WorkerDetails {
 
 class Coordinator {
 private:
-   const static int POLL_TIMEOUT = 120000;
+   const static int POLL_TIMEOUT = 10 * 60000; // 10 mins
 
    Socket socket;
    std::map<int, WorkerDetails> workers;
@@ -51,7 +51,7 @@ private:
 
    BlobClient *blobClient = nullptr;
 public:
-   Coordinator(const std::string& name, const int p);
+   Coordinator(const int p);
    std::vector<std::pair<int, std::string>> processFile(const std::string listUrl);
    ~Coordinator();
 };

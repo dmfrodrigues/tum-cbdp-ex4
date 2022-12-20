@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
       return 1;
    }
 
-   Worker w("127.0.0.1", atoi(argv[2]));
+   Worker w(argv[1], atoi(argv[2]));
    w.run();
 
    return 0;

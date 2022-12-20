@@ -9,12 +9,12 @@
 class Socket {
 private:
     static const int BACKLOG = 10;
-    static const int NUMBER_RETRIES_CONNECT = 20;
+    static const int NUMBER_RETRIES_CONNECT = 20000;
     static const useconds_t SLEEP_MICROS = 200000;
 
     static MessageFactory messageFactory;
 
-    void init(const std::string &name, int port);
+    void init(const char *name, int port, bool is_listening);
 
     addrinfo *req = nullptr;
     int sd;
@@ -25,7 +25,7 @@ public:
 
     int getSd() const;
 
-    void bind(const std::string &name, int port);
+    void bind(int port);
     void connect(const std::string &name, int port);
 
     Socket accept();
