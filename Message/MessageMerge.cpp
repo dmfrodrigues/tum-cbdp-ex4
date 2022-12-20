@@ -29,12 +29,16 @@ void MessageMerge::serializeContents(stringstream& ss) const {
    const size_t& numberSubpartitionsURI = subpartitionsURI.size();
    ss.write(reinterpret_cast<const char*>(&numberSubpartitionsURI), sizeof(numberSubpartitionsURI));
 
+   cerr << "[C] Serializing Merge, got " << numberSubpartitionsURI << " subpartitions to merge" << endl;
+
    for (size_t i = 0; i < numberSubpartitionsURI; ++i) {
       const string& subpartitionURI = subpartitionsURI[i];
       const size_t& sizeSubpartitionURI = subpartitionURI.size();
 
       ss.write(reinterpret_cast<const char*>(&sizeSubpartitionURI), sizeof(sizeSubpartitionURI));
       ss.write(subpartitionURI.data(), sizeSubpartitionURI);
+
+      cerr << "[C]    Serializing Merge - Serialized subpartition " << subpartitionURI << " (size " << sizeSubpartitionURI << ")" << endl;
    }
 }
 
