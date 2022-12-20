@@ -6,6 +6,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <unistd.h>
 
 #include "../Socket/Socket.h"
 #include "MessageSplit.h"
@@ -47,13 +48,15 @@ bool MessageMerge::deserializeContents(stringstream& ss) {
 
    size_t numberSubpartitionsURI;
    ss.read(reinterpret_cast<char*>(&numberSubpartitionsURI), sizeof(numberSubpartitionsURI));
+   cerr << "[W] Deserializing Merge, got " << numberSubpartitionsURI << " subpartitions to merge" << endl;
    subpartitionsURI.clear();
    subpartitionsURI.reserve(numberSubpartitionsURI);
    for (size_t i = 0; i < numberSubpartitionsURI; ++i) {
       size_t sizeSubpartitionURI;
       ss.read(reinterpret_cast<char*>(&sizeSubpartitionURI), sizeof(sizeSubpartitionURI));
-      ss.read(buf, sizeSubpartitionURI);
-      subpartitionsURI.emplace_back(buf, sizeSubpartitionURI);
+      ss.read(buf, sizeSubpartitionURI); cerr << ss.good() << ss.eof() << ss.fail() << ss.bad() << endl;
+      subpartitionsURI.emplace_back(buf, sizeSubpartitionURI); cerr << ss.good() << ss.eof() << ss.fail() << ss.bad() << endl;
+      cerr << "[W] Deserializing Merge, was asked to merge subpartition " << *subpartitionsURI.rbegin() << " (size " << sizeSubpartitionURI << ")" << endl;
    }
 
    return ss.eof();
