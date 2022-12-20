@@ -13,13 +13,19 @@
 #include <sys/un.h>
 #include <cassert>
 #include <algorithm>
-#include <fstream>
 
 #include "../Message/MessageHeartbeat.h"
 #include "../Message/MessageSplit.h"
 #include "../Message/MessageMerge.h"
 
+#include "../Blob/AzureBlobClient.h"
+#include "../Blob/FilesystemBlobClient.h"
+
 using namespace std;
+
+#ifndef AZURE_BLOB_STORAGE
+   #define AZURE_BLOB_STORAGE 0
+#endif
 
 Coordinator::Coordinator(const std::string &name, const int port) {
    socket.bind(name, port);
@@ -34,6 +40,20 @@ Coordinator::Coordinator(const std::string &name, const int port) {
    pfd.fd = socket.getSd();
    pfd.events = POLLIN;
    pollSockets.push_back(pfd);
+
+   if(AZURE_BLOB_STORAGE){
+      const string AZURE_ACCOUNT_NAME = "TODO";
+      const string AZURE_ACCESS_TOKEN = "TODO";
+      const string containerName = "my-container";
+      blobClient = new AzureBlobClient(
+         AZURE_ACCOUNT_NAME,
+         AZURE_ACCESS_TOKEN,
+         containerName,
+         true
+      );
+   } else {
+      blobClient = new FilesystemBlobClient;
+   }
 }
 
 void Coordinator::acceptConnection() {
@@ -138,7 +158,8 @@ bool Coordinator::processWorkerResult(int sd) {
 vector<pair<int, string>> Coordinator::aggregatePartialResults(){
    multimap<int, string> resultsSet;
    for(const string &partialResult: processedPartialResults){
-      ifstream in(partialResult);
+      istream *in_ptr = blobClient->get(partialResult);
+      istream &in = *in_ptr;
       while(!in.eof()){
          int count; string domain;
          in >> count;
@@ -148,6 +169,7 @@ vector<pair<int, string>> Coordinator::aggregatePartialResults(){
          while(resultsSet.size() > MessageMerge::NUMBER_RESULTS)
             resultsSet.erase(resultsSet.begin());
       }
+      delete in_ptr;
    }
    vector<pair<int, string>> results(resultsSet.rbegin(), resultsSet.rend());
    return results;
@@ -235,4 +257,8 @@ vector<pair<int, string>> Coordinator::processFile(std::string listUrl) {
    cleanup();
 
    return results;
+}
+
+Coordinator::~Coordinator(){
+   delete blobClient;
 }

@@ -22,5 +22,5 @@ private:
 public:
     MessageSplit(Message::Type t);
     MessageSplit(Message::Type t, const std::string &partitionURI);
-    virtual void process(Socket &socket) const;
+    virtual void process(Socket &socket, BlobClient &blobClient) const;
 };

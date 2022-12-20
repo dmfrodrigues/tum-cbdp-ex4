@@ -16,5 +16,5 @@ private:
 public:
     MessageMerge(Message::Type t);
     MessageMerge(Message::Type t, const std::vector<std::string> &subpartitionsURI, const std::string &partialResultURI);
-    virtual void process(Socket &socket) const;
+    virtual void process(Socket &socket, BlobClient &blobClient) const;
 };

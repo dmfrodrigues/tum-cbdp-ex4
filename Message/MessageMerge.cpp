@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include <fstream>
 #include <map>
 #include <vector>
 #include <utility>
@@ -61,7 +60,7 @@ bool MessageMerge::deserializeContents(stringstream& ss) {
    return ss.eof();
 }
 
-void MessageMerge::process(Socket& socket) const {
+void MessageMerge::process(Socket& socket, BlobClient &blobClient) const {
    vector<map<string, size_t>> countings(MessageSplit::NUMBER_SUBPARTITIONS);
 
    cerr << "[W] Merging " << partialResultURI << endl;
@@ -69,7 +68,8 @@ void MessageMerge::process(Socket& socket) const {
    map<string, size_t> partialCounts;
 
    for (const string& elem : subpartitionsURI) {
-      ifstream in(elem);
+      istream *in_ptr = blobClient.get(elem);
+      istream &in = *in_ptr;
 
       size_t count;
       string domain;
@@ -80,6 +80,8 @@ void MessageMerge::process(Socket& socket) const {
 
          partialCounts[domain] += count;
       }
+
+      delete in_ptr;
    }
 
    vector<pair<size_t, string>> outTemp;
@@ -91,13 +93,13 @@ void MessageMerge::process(Socket& socket) const {
    
    cerr << "[W]     Printing partial result " << partialResultURI << endl;
    {
-      ofstream out(partialResultURI);
+      stringstream out;
 
       for (size_t i = 0; i < min(size_t(NUMBER_RESULTS), outTemp.size()); ++i) {
          const auto& elem = outTemp[i];
          out << elem.first << elem.second << "\n";
       }
-      out << flush;
+      blobClient.put(partialResultURI, out);
    }
 
    cerr << "[W]     Done printing partial result to " << partialResultURI << endl;

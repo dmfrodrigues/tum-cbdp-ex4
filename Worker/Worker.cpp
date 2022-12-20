@@ -46,7 +46,7 @@ void Worker::run() {
       Message *m = socket.receive();
       if (m == nullptr) return;
 
-      m->process(socket);
+      m->process(socket, *blobClient);
 
       delete m;
 

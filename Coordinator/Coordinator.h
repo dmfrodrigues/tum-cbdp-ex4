@@ -49,10 +49,11 @@ private:
    void loop();
    void cleanup();
 
-
+   BlobClient *blobClient = nullptr;
 public:
    Coordinator(const std::string& name, const int p);
    std::vector<std::pair<int, std::string>> processFile(const std::string listUrl);
+   ~Coordinator();
 };
 
 #endif

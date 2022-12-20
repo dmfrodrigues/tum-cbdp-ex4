@@ -14,6 +14,8 @@ class AzureBlobClient : public BlobClient {
    /// The name of the current container. We create a single global container for this assignment
    std::string containerName;
 
+   bool createdNewContainer;
+
    /// Create the blob_client with the given credentials
    static azure::storage_lite::blob_client createClient(const std::string& accountName, const std::string& accessToken);
 
@@ -29,7 +31,7 @@ class AzureBlobClient : public BlobClient {
    ///               az storage account list
    /// @accessToken: An access token for azure. Get an access token via:
    ///               az account get-access-token --resource https://storage.azure.com/ -o tsv --query accessToken
-   AzureBlobClient(const std::string& accountName, const std::string& accessToken, std::string containerName);
+   AzureBlobClient(const std::string& accountName, const std::string& accessToken, std::string containerName, bool createNewContainer = false);
    AzureBlobClient(const AzureBlobClient&) = delete;
    AzureBlobClient& operator=(const AzureBlobClient&) = delete;
 

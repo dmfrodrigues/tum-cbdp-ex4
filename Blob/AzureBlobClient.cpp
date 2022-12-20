@@ -16,11 +16,12 @@ azure::storage_lite::blob_client AzureBlobClient::createClient(const std::string
    return {std::move(account), 16};
 }
 
-AzureBlobClient::AzureBlobClient(const std::string& accountName, const std::string& accessToken, std::string containerName)
-   : client(createClient(accountName, accessToken))
+AzureBlobClient::AzureBlobClient(const std::string& accountName, const std::string& accessToken, std::string containerName, bool createNewContainer) :
+   client(createClient(accountName, accessToken)),
+   createdNewContainer(createNewContainer)
 // Constructor
 {
-   createContainer(containerName);
+   if(createNewContainer) createContainer(containerName);
 }
 
 void AzureBlobClient::createContainer(std::string containerName)
@@ -78,5 +79,5 @@ std::vector<std::string> AzureBlobClient::listBlobs()
 }
 
 AzureBlobClient::~AzureBlobClient(){
-   deleteContainer();
+   if(createdNewContainer) deleteContainer();
 }

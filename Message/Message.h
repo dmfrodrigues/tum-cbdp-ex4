@@ -3,6 +3,8 @@
 #include <sstream>
 #include <string>
 
+#include "../Blob/BlobClient.h"
+
 class Socket;
 
 class MessageFactory;
@@ -31,5 +33,5 @@ public:
 
     virtual ~Message();
 
-    virtual void process(Socket &socket) const = 0;
+    virtual void process(Socket &socket, BlobClient &blobClient) const = 0;
 };

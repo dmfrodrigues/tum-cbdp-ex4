@@ -8,5 +8,5 @@ private:
     virtual bool deserializeContents(std::stringstream &ss);
 public:
     MessageHeartbeat(Message::Type t);
-    virtual void process(Socket &socket) const;
+    virtual void process(Socket &socket, BlobClient &blobClient) const;
 };

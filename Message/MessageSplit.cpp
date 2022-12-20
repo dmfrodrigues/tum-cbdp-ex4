@@ -4,7 +4,6 @@
 
 #include <vector>
 #include <map>
-#include <fstream>
 
 #include "../Socket/Socket.h"
 #include "../CurlEasyPtr.h"
@@ -67,7 +66,7 @@ string MessageSplit::extractDomain(const string &s){
    else return s.substr(idx1+3, idx2 - (idx1 + 3));
 }
 
-void MessageSplit::process(Socket &socket) const {
+void MessageSplit::process(Socket &socket, BlobClient &blobClient) const {
    vector<map<string, size_t>> countings(NUMBER_SUBPARTITIONS);
 
    cerr << "[W] Processing partition " << partitionURI << endl;
@@ -90,12 +89,12 @@ void MessageSplit::process(Socket &socket) const {
    for (int i = 0; i < NUMBER_SUBPARTITIONS; ++i) {
       string outFilename = partitionURI.substr(partitionURI.find_last_of("/")+1) + "." + to_string(i);
       cerr << "[W]     Printing subpartition " << outFilename << endl;
-      ofstream out(outFilename);
+      stringstream out;
       for (const auto &p: countings.at(i)) {
          out << p.second << " " << p.first << "\n";
       }
+      blobClient.put(outFilename, out);
       cerr << "[W]     Done printing subpartition to " << outFilename << endl;
-      out << flush;
       response.subpartitionsURI.push_back(outFilename);
    }
 
