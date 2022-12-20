@@ -40,7 +40,7 @@ void AzureBlobClient::deleteContainer()
    this->containerName = {};
 }
 
-void AzureBlobClient::uploadStringStream(const std::string& blobName, std::stringstream& stream)
+void AzureBlobClient::put(const std::string& blobName, std::istream& stream)
 // Write a string stream to a blob
 {
    auto uploadRequest = client.upload_block_blob_from_stream(containerName, blobName, stream, {}).get();
@@ -48,11 +48,11 @@ void AzureBlobClient::uploadStringStream(const std::string& blobName, std::strin
       throw std::runtime_error("Azure upload blob failed: " + formatError(uploadRequest.error()));
 }
 
-std::stringstream AzureBlobClient::downloadStringStream(const std::string& blobName)
+std::istream* AzureBlobClient::get(const std::string& blobName)
 // Read a string stream from a blob
 {
-   std::stringstream result;
-   auto downloadRequest = client.download_blob_to_stream(containerName, blobName, 0, 0, result).get();
+   std::stringstream *result = new std::stringstream;
+   auto downloadRequest = client.download_blob_to_stream(containerName, blobName, 0, 0, *result).get();
    if (!downloadRequest.success())
       throw std::runtime_error("Azure download blob failed: " + formatError(downloadRequest.error()));
    return result;

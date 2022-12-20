@@ -19,7 +19,9 @@ add_executable(coordinator
         Message/MessageMerge.cpp
         Socket/Socket.cpp
         Coordinator/Coordinator.cpp
-        AzureBlobClient.cpp AzureBlobClient.h)
+        Blob/AzureBlobClient.cpp
+        Blob/FilesystemBlobClient.cpp
+)
 target_link_libraries(coordinator PUBLIC CURL::libcurl azure-storage-lite)
 
 add_executable(worker
@@ -32,6 +34,8 @@ add_executable(worker
         Message/MessageMerge.cpp
         Worker/Worker.cpp
         Socket/Socket.cpp
-        AzureBlobClient.cpp AzureBlobClient.h)
+        Blob/AzureBlobClient.cpp
+        Blob/FilesystemBlobClient.cpp
+)
 target_link_libraries(worker PUBLIC CURL::libcurl azure-storage-lite)
 

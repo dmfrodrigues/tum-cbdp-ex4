@@ -1,13 +1,14 @@
 #ifndef CBDP_AZUREBLOBCLIENT_H
 #define CBDP_AZUREBLOBCLIENT_H
 
+#include "BlobClient.h"
 #include "blob/blob_client.h"
 #include <sstream>
 #include <string>
 #include <vector>
 
 /// A simplified wrapper around the Azure storage API
-class AzureBlobClient {
+class AzureBlobClient : public BlobClient {
    /// The blob client
    azure::storage_lite::blob_client client;
    /// The name of the current container. We create a single global container for this assignment
@@ -33,10 +34,10 @@ class AzureBlobClient {
    void deleteContainer();
 
    /// Write a string stream to a blob
-   void uploadStringStream(const std::string& blobName, std::stringstream& stream);
+   virtual void put(const std::string& blobName, std::istream& stream);
 
    /// Read a string stream from a blob
-   std::stringstream downloadStringStream(const std::string& blobName);
+   virtual std::istream* get(const std::string& blobName);
 
    /// List all blobs in the container
    std::vector<std::string> listBlobs();
