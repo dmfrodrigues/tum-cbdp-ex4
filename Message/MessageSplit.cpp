@@ -6,7 +6,6 @@
 #include <map>
 
 #include "../Socket/Socket.h"
-#include "../CurlEasyPtr.h"
 
 using namespace std;
 
@@ -71,12 +70,10 @@ void MessageSplit::process(Socket &socket, BlobClient &blobClient) const {
 
    cerr << "[W] Processing partition " << partitionURI << endl;
 
-   CurlEasyPtr curl = CurlEasyPtr::easyInit();
-   curl.setUrl(partitionURI);
-   stringstream in = curl.performToStringStream();
+   istream *in = blobClient.get(partitionURI);
    string url;
    hash<string> h;
-   while(getline(in, url)){
+   while(getline(*in, url)){
       url = url.substr(url.find_first_of("\t")+1); // Quick and dirty fix
 
       string domain = extractDomain(url);
@@ -98,6 +95,7 @@ void MessageSplit::process(Socket &socket, BlobClient &blobClient) const {
       response.subpartitionsURI.push_back(outFilename);
    }
 
+   delete in;
    cerr << "[W] Done processing partition " << partitionURI << endl;
 
    socket.send(&response);

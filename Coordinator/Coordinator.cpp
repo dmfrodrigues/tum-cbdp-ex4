@@ -1,5 +1,4 @@
 #include "Coordinator.h"
-#include "../CurlEasyPtr.h"
 #include "../Worker/Worker.h"
 
 #include <netdb.h>
@@ -220,29 +219,17 @@ void Coordinator::cleanup() {
    // TODO:
 }
 
-vector<pair<int, string>> Coordinator::processFile(std::string listUrl) {
-   //    1. Allow workers to connect
-   //       socket(), bind(), listen(), accept(), see: https://beej.us/guide/bgnet/html/#system-calls-or-bust
-   //    2. Distribute the following work among workers
-   //       send() them some work
-   //    3. Collect all results
-   //       recv() the results
-   // Hint: Think about how you track which worker got what work
-   
+vector<pair<int, string>> Coordinator::processFile(std::string fileName) {
    // Download the file list
-   auto curl = CurlEasyPtr::easyInit();
-   curl.setUrl(listUrl);
-   stringstream ss = curl.performToStringStream();
-
-
+   istream *stream = blobClient->get(fileName);
 
    string nextPartition;
    do {
-      getline(ss, nextPartition, '\n');
+      getline(*stream, nextPartition, '\n');
       if (nextPartition.empty()) continue;
 
       remainingPartitions.push(nextPartition);
-   } while(!ss.eof());
+   } while(!stream->eof());
 
    NUMBER_PARTITIONS = remainingPartitions.size();
 
@@ -256,6 +243,7 @@ vector<pair<int, string>> Coordinator::processFile(std::string listUrl) {
    // Cleanup
    cleanup();
 
+   delete stream;
    return results;
 }
 

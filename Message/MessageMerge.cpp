@@ -7,7 +7,6 @@
 #include <utility>
 #include <algorithm>
 
-#include "../CurlEasyPtr.h"
 #include "../Socket/Socket.h"
 #include "MessageSplit.h"
 

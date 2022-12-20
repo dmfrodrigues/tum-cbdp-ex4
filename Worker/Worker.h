@@ -4,8 +4,6 @@
 #include <sstream>
 
 #include "../Socket/Socket.h"
-#include "../CurlEasyPtr.h"
-
 #include "../Blob/BlobClient.h"
 
 class Worker {
@@ -14,8 +12,6 @@ private:
    static const useconds_t SLEEP_MICROS = 50000;
 
    Socket socket;
-
-   CurlEasyPtr curl;
 
    BlobClient *blobClient = nullptr;   
 public:

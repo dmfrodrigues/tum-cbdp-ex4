@@ -12,7 +12,6 @@ find_package(CURL REQUIRED)
 
 add_executable(coordinator
         coordinator.cpp
-        CurlEasyPtr.cpp
         Message/Message.cpp
         Message/MessageFactory.cpp
         Message/MessageHeartbeat.cpp
@@ -27,7 +26,6 @@ target_link_libraries(coordinator PUBLIC CURL::libcurl azure-storage-lite)
 
 add_executable(worker
         worker.cpp
-        CurlEasyPtr.cpp
         Message/Message.cpp
         Message/MessageFactory.cpp
         Message/MessageHeartbeat.cpp

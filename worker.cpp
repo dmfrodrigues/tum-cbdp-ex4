@@ -1,5 +1,4 @@
 #include "Worker/Worker.h"
-#include "CurlEasyPtr.h"
 #include <iostream>
 
 /// Worker process that receives a list of URLs and reports the result
@@ -11,8 +10,6 @@ int main(int argc, char* argv[]) {
       std::cerr << "Usage: " << argv[0] << " <host> <port>" << std::endl;
       return 1;
    }
-
-   CurlGlobalSetup curlSetup;
 
    Worker w("127.0.0.1", atoi(argv[2]));
    w.run();

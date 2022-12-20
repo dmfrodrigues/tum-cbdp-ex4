@@ -20,9 +20,7 @@ using namespace std::literals;
    #define AZURE_BLOB_STORAGE 0
 #endif
 
-Worker::Worker(const std::string &coordName, const int coordPort) :
-   curl(CurlEasyPtr::easyInit())
-{
+Worker::Worker(const std::string &coordName, const int coordPort) {
    socket.connect(coordName, coordPort);
    // MessageHeartbeat m(Message::Type::REQUEST);
    // socket.send(&m);
