@@ -96,8 +96,9 @@ void Socket::send(const Message *m) {
    string msg = m->serialize();
    const size_t &sz = msg.size();
    cerr << "[] Sending message '" << msg << "' (size " << sz << ")" << endl;
-   write(sd, &sz, sizeof(sz));
-   write(sd, msg.data(), sz);
+   auto sz1 = write(sd, &sz, sizeof(sz));
+   auto sz2 = write(sd, msg.data(), sz);
+   cerr << "[] Sending message, sz1=" << sz1 << ", sz2=" << sz2 << endl;
 }
 
 Message* Socket::receive() {
