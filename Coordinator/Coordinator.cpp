@@ -41,10 +41,10 @@ Coordinator::Coordinator(const std::string &name, const int port) {
    pfd.events = POLLIN;
    pollSockets.push_back(pfd);
 
-   if(AZURE_BLOB_STORAGE){
-      const string AZURE_ACCOUNT_NAME = "TODO";
-      const string AZURE_ACCESS_TOKEN = "TODO";
-      const string containerName = "my-container";
+   if (AZURE_BLOB_STORAGE) {
+      const string AZURE_ACCOUNT_NAME = "cbdpg43";
+      const string AZURE_ACCESS_TOKEN = "HCGMVgxsvZe6BqYW+nEEFiu+9k/Jxe+hf0GkZbNr96jcl+EtzPwgm5RqdcocAr6kkasnWM5yffnx+AStY7u0+Q==";
+      const string containerName = "mycontainer";
       blobClient = new AzureBlobClient(
          AZURE_ACCOUNT_NAME,
          AZURE_ACCESS_TOKEN,

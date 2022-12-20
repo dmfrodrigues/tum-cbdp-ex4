@@ -1,5 +1,7 @@
 #include "AzureBlobClient.h"
 
+using namespace azure::storage_lite;
+
 static std::string formatError(const azure::storage_lite::storage_error& error)
 // Format an Azure storage error
 {
@@ -9,10 +11,9 @@ static std::string formatError(const azure::storage_lite::storage_error& error)
 azure::storage_lite::blob_client AzureBlobClient::createClient(const std::string& accountName, const std::string& accessToken)
 // Create a container that stores all blobs
 {
-   using namespace azure::storage_lite;
-   std::shared_ptr<storage_credential> cred = std::make_shared<token_credential>(accessToken);
+   std::shared_ptr<storage_credential> cred = std::make_shared<shared_key_credential>(accountName, accessToken);
    std::shared_ptr<storage_account> account = std::make_shared<storage_account>(accountName, std::move(cred), /* use_https */ true);
-
+   
    return {std::move(account), 16};
 }
 
@@ -21,7 +22,9 @@ AzureBlobClient::AzureBlobClient(const std::string& accountName, const std::stri
    createdNewContainer(createNewContainer)
 // Constructor
 {
-   if(createNewContainer) createContainer(containerName);
+   if(createNewContainer) {
+      createContainer(containerName);
+   }
 }
 
 void AzureBlobClient::createContainer(std::string containerName)
