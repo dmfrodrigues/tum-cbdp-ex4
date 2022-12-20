@@ -6,7 +6,11 @@
 
 class MessageSplit : public Message {
 public:
+    #ifdef NUM_SUBPARTITIONS
+    static const int NUMBER_SUBPARTITIONS = NUM_SUBPARTITIONS;
+    #else
     static const int NUMBER_SUBPARTITIONS = 3;
+    #endif
 
     std::string partitionURI;
     std::vector<std::string> subpartitionsURI;
