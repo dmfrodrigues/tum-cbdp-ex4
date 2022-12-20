@@ -109,6 +109,12 @@ bool Coordinator::sendWork(int sd) {
       WorkerDetails &wd = workers.at(worker);
       wd.socket.send(&m);
 
+      cerr << "[C] Asking to Merge ";
+      for (auto elem: doneSubpartitions.at(partialResultIdx)) {
+         cerr << elem << " ";
+      }
+      cerr << endl;
+
       #ifdef LOG
       cout << "[C] Dispatched partial result '" << partialResultURI << "' to worker " << worker << endl;
       #endif

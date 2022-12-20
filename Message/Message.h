@@ -15,7 +15,7 @@ class Message {
     virtual void serializeContents(std::stringstream &ss) const = 0;
     virtual bool deserializeContents(std::stringstream &ss) = 0;
 public:
-    static const size_t MAX_SIZE = 8192;
+    static const size_t MAX_SIZE = 8192 * 4;
 
     enum Type : uint8_t {
         REQUEST = 1,

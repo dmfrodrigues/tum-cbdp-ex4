@@ -62,12 +62,25 @@ bool MessageMerge::deserializeContents(stringstream& ss) {
 void MessageMerge::process(Socket& socket, BlobClient &blobClient) const {
    vector<map<string, size_t>> countings(MessageSplit::NUMBER_SUBPARTITIONS);
 
-   cerr << "[W] Merging " << partialResultURI << endl;
+   cerr << "[W] !Merging " << partialResultURI << endl;
 
    map<string, size_t> partialCounts;
 
    for (const string& elem : subpartitionsURI) {
-      istream *in_ptr = blobClient.get(elem);
+      cerr << "[W] Merge - Retrieving " << elem << endl;
+      istream *in_ptr = nullptr;
+      while (!in_ptr) {
+         try
+         {
+            in_ptr = blobClient.get(elem);
+         }
+         catch(const std::exception& e)
+         {
+            std::cerr << "Could not retrieve " << elem << " : " << e.what() << '\n';
+         }
+         sleep(1);
+      }
+      
       istream &in = *in_ptr;
 
       size_t count;
@@ -90,7 +103,7 @@ void MessageMerge::process(Socket& socket, BlobClient &blobClient) const {
    sort(outTemp.rbegin(), outTemp.rend());
 
    
-   cerr << "[W]     Printing partial result " << partialResultURI << endl;
+   cerr << "[W] Merge - Printing partial result " << partialResultURI << endl;
    {
       stringstream out;
 
@@ -101,12 +114,12 @@ void MessageMerge::process(Socket& socket, BlobClient &blobClient) const {
       blobClient.put(partialResultURI, out);
    }
 
-   cerr << "[W]     Done printing partial result to " << partialResultURI << endl;
+   cerr << "[W] Merge - Done printing partial result to " << partialResultURI << endl;
    
    MessageMerge response(Message::Type::RESPONSE);
    response.partialResultURI = partialResultURI;
 
-   cerr << "[W] Done processing partial result " << partialResultURI << endl;
+   cerr << "[W] Merge - Done processing partial result " << partialResultURI << endl;
 
    socket.send(&response);
 }
