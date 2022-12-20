@@ -19,6 +19,7 @@ azure::storage_lite::blob_client AzureBlobClient::createClient(const std::string
 
 AzureBlobClient::AzureBlobClient(const std::string& accountName, const std::string& accessToken, std::string containerName, bool createNewContainer) :
    client(createClient(accountName, accessToken)),
+   containerName(containerName),
    createdNewContainer(createNewContainer)
 // Constructor
 {
@@ -48,6 +49,7 @@ void AzureBlobClient::deleteContainer()
 void AzureBlobClient::put(const std::string& blobName, std::istream& stream)
 // Write a string stream to a blob
 {
+   std::cout << "Writing " << blobName << " to " << containerName << std::endl;
    auto uploadRequest = client.upload_block_blob_from_stream(containerName, blobName, stream, {}).get();
    if (!uploadRequest.success())
       throw std::runtime_error("Azure upload blob failed: " + formatError(uploadRequest.error()));
