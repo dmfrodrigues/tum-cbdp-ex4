@@ -108,10 +108,17 @@ Message* Socket::receive() {
    
    char buf[Message::MAX_SIZE];
    memset(buf, 0, Message::MAX_SIZE);
-   n = read(sd, buf, sz);
-   if (n == 0) return nullptr;
+   
+   char *current_buf = buf;
+   ssize_t left_to_read = sz;
+   while(left_to_read > 0){
+      n = read(sd, current_buf, left_to_read);
+      if (n == 0) return nullptr;
+      current_buf += n;
+      left_to_read -= n;
+   }
 
-   cerr << "[] Received message '" << string(buf, sz) << "' (sz " << sz << ", n=" << n << ")" << endl;
+   cerr << "[] Received message '" << string(buf, sz) << "' (sz " << sz << ", n=" << n << ", left_to_read=" << left_to_read << ")" << endl;
 
    stringstream ss;
    ss.write(buf, sz);
