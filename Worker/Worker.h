@@ -6,6 +6,8 @@
 #include "../Socket/Socket.h"
 #include "../CurlEasyPtr.h"
 
+#include "../Blob/BlobClient.h"
+
 class Worker {
 private:
    static const int NUMBER_RETRIES_CONNECT = 10;
@@ -14,9 +16,13 @@ private:
    Socket socket;
 
    CurlEasyPtr curl;
+
+   BlobClient *blobClient = nullptr;   
 public:
    Worker(const std::string& coordName, const int coordPort);
    void run();
+
+   ~Worker();
 };
 
 #endif

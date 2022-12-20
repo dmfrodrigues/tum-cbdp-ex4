@@ -13,3 +13,5 @@ std::istream* FilesystemBlobClient::get(const std::string &name){
     ifstream *in = new ifstream(name);
     return in;
 }
+
+FilesystemBlobClient::~FilesystemBlobClient(){}
