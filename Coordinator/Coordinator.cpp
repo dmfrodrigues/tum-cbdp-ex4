@@ -13,6 +13,7 @@
 #include <sys/un.h>
 #include <cassert>
 #include <algorithm>
+#include <fstream>
 
 #include "../Message/MessageHeartbeat.h"
 #include "../Message/MessageSplit.h"
@@ -134,6 +135,24 @@ bool Coordinator::processWorkerResult(int sd) {
    return true;
 }
 
+vector<pair<int, string>> Coordinator::aggregatePartialResults(){
+   multimap<int, string> resultsSet;
+   for(const string &partialResult: processedPartialResults){
+      ifstream in(partialResult);
+      while(!in.eof()){
+         int count; string domain;
+         in >> count;
+         getline(in, domain);
+         while(domain[0] == ' ') domain = domain.substr(1);
+         resultsSet.insert({count, domain});
+         while(resultsSet.size() > MessageMerge::NUMBER_RESULTS)
+            resultsSet.erase(resultsSet.begin());
+      }
+   }
+   vector<pair<int, string>> results(resultsSet.rbegin(), resultsSet.rend());
+   return results;
+}
+
 void Coordinator::loop() {
 
    int rc = poll(pollSockets.data(), pollSockets.size(), POLL_TIMEOUT);
@@ -207,15 +226,13 @@ vector<pair<int, string>> Coordinator::processFile(std::string listUrl) {
 
    do { // Until result
       loop();
-   } while (true);
+   } while (processedPartialResults.size() < MessageSplit::NUMBER_SUBPARTITIONS);
+
+   // We are done; the coordinator only needs to aggregate partial results
+   vector<pair<int, string>> results = aggregatePartialResults();
 
    // Cleanup
    cleanup();
 
-   // #ifdef LOG
-   // cout << "[C] Finished processing file, found " << totalResults << " matches" << endl;
-   // #endif
-
-   vector<pair<int, string>> results;
    return results;
 }

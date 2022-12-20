@@ -95,7 +95,7 @@ void MessageSplit::process(Socket &socket) const {
          out << p.second << " " << p.first << "\n";
       }
       cerr << "[W]     Done printing subpartition to " << outFilename << endl;
-      out.flush();
+      out << flush;
       response.subpartitionsURI.push_back(outFilename);
    }
 

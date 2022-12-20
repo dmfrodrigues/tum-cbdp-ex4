@@ -45,6 +45,7 @@ private:
    bool sendWork(int sd);
    bool processWorkerResult(int sd);
    void acceptConnection();
+   std::vector<std::pair<int, std::string>> aggregatePartialResults();
    void loop();
    void cleanup();
 

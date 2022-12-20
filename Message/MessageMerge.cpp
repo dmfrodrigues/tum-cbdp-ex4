@@ -90,16 +90,18 @@ void MessageMerge::process(Socket& socket) const {
 
    
    cerr << "[W]     Printing partial result " << partialResultURI << endl;
-   ofstream out(partialResultURI);
+   {
+      ofstream out(partialResultURI);
 
-   for (size_t i = 0; i < min(size_t(NUMBER_RESULTS), outTemp.size()); ++i) {
-      const auto& elem = outTemp[i];
-      out << elem.first << elem.second << "\n";
+      for (size_t i = 0; i < min(size_t(NUMBER_RESULTS), outTemp.size()); ++i) {
+         const auto& elem = outTemp[i];
+         out << elem.first << elem.second << "\n";
+      }
+      out << flush;
    }
 
    cerr << "[W]     Done printing partial result to " << partialResultURI << endl;
-   out.flush();
-
+   
    MessageMerge response(Message::Type::RESPONSE);
    response.partialResultURI = partialResultURI;
 
