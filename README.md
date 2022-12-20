@@ -88,6 +88,9 @@ NOTE: You can use the Assignment 3 repository for this section, or a different b
 1. Give a brief description of your solution.
 
 2. What was the query execution time in Azure? Include screenshots, logs if needed.
+ 
+154146 ms
+149154 ms
 
 3. Which partitioning method did you choose for the calculation of the partial aggregates? Why?
 

@@ -107,12 +107,6 @@ bool Coordinator::sendWork(int sd) {
       string partialResultURI = "top25." + to_string(partialResultIdx);
       MessageMerge m(Message::Type::REQUEST, doneSubpartitions.at(partialResultIdx), partialResultURI);
 
-      cerr << "[C] Asking to Merge ";
-      for (auto elem: m.subpartitionsURI) {
-         cerr << elem << " ";
-      }
-      cerr << endl;
-
       WorkerDetails &wd = workers.at(worker);
       wd.socket.send(&m);
 
