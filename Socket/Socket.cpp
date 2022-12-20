@@ -95,6 +95,7 @@ void Socket::connect(const string &name, int port) {
 void Socket::send(const Message *m) {
    string msg = m->serialize();
    const size_t &sz = msg.size();
+   cerr << "[] Sending message '" << msg << "' (size " << sz << ")" << endl;
    write(sd, &sz, sizeof(sz));
    write(sd, msg.data(), sz);
 }
@@ -108,6 +109,8 @@ Message* Socket::receive() {
    memset(buf, 0, Message::MAX_SIZE);
    n = read(sd, buf, sz);
    if (n == 0) return nullptr;
+
+   cerr << "[] Received message '" << string(buf, sz) << "' (sz " << sz << ", n=" << n << ")" << endl;
 
    stringstream ss;
    ss.write(buf, sz);
