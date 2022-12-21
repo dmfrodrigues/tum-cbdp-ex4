@@ -12,15 +12,17 @@ docker build -t "$REGISTRY_NAME.azurecr.io"/worker --target worker .
 docker push "$REGISTRY_NAME.azurecr.io"/coordinator
 docker push "$REGISTRY_NAME.azurecr.io"/worker
 
+echo Deploying coordinator
 az container start -g cbdp-resourcegroup --name coordinator
 COORDINATOR=$(az container show --resource-group cbdp-resourcegroup --name coordinator --query ipAddress.ip --output tsv)
 for (( i=1; i<=$1; i++ ))
 do
   #az container start -g cbdp-resourcegroup --name worker$i &
+  echo Deploying worker $i
   az container create -g cbdp-resourcegroup --vnet cbdpVnet --subnet cbdpSubnet\
     --restart-policy Never --name "worker$i" --image "$REGISTRY_NAME.azurecr.io"/worker\
     --environment-variables CBDP_COORDINATOR="$COORDINATOR"\
-    --registry-password=$REG_PWD --registry-username=$REG_USERNAME
+    --registry-password=$REG_PWD --registry-username=$REG_USERNAME &
 done
 
 wait
