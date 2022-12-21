@@ -12,7 +12,7 @@
 
 
 #include "../Socket/Socket.h"
-
+#include "../Blob/BlobClient.h"
 
 struct workerDetails {
    std::list<std::string> work;
@@ -40,10 +40,12 @@ private:
    void cleanup();
    void cleanupDeadWorker(int dw);
 
+   BlobClient *blobClient = nullptr;
 
 public:
    Coordinator(const int p);
    size_t processFile(const std::string listUrl);
+   ~Coordinator();
 };
 
 #endif

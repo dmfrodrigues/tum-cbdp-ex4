@@ -5,6 +5,7 @@
 
 #include "../Socket/Socket.h"
 #include "../CurlEasyPtr.h"
+#include "../Blob/BlobClient.h"
 
 class Worker {
 private:
@@ -13,11 +14,12 @@ private:
 
    Socket socket;
 
-   CurlEasyPtr curl;
+   BlobClient *blobClient = nullptr;
 public:
    Worker(const std::string& coordName, const int coordPort);
    void run();
-   size_t processChunk(std::stringstream& chunkName);
+   size_t processChunk(std::istream& chunkName);
+   ~Worker();
 };
 
 #endif

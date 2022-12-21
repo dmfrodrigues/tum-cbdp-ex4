@@ -10,15 +10,26 @@
 
 #include <cassert>
 
+#include "../Blob/AzureBlobClient.h"
+
 using namespace std;
 using namespace std::literals;
 
-Worker::Worker(const std::string &coordName, const int coordPort) :
-   curl(CurlEasyPtr::easyInit())
+Worker::Worker(const std::string &coordName, const int coordPort)
 {
    socket.connect(coordName, coordPort);
    // MessageHeartbeat m(Message::Type::REQUEST);
    // socket.send(&m);
+
+   const string AZURE_ACCOUNT_NAME = "cbdpg43";
+   const string AZURE_ACCESS_TOKEN = "HCGMVgxsvZe6BqYW+nEEFiu+9k/Jxe+hf0GkZbNr96jcl+EtzPwgm5RqdcocAr6kkasnWM5yffnx+AStY7u0+Q==";
+   const string containerName = "mycontainer1";
+   blobClient = new AzureBlobClient(
+      AZURE_ACCOUNT_NAME,
+      AZURE_ACCESS_TOKEN,
+      containerName,
+      false
+   );
 }
 
 void Worker::run() {
@@ -35,9 +46,12 @@ void Worker::run() {
       cout << "[W] Received chunk '" << chunkURL << "'" << endl;
       #endif
 
-      curl.setUrl(chunkURL);
-      std::stringstream ss = curl.performToStringStream();
+      istream *ss_ptr = blobClient->get(chunkURL);
+      istream &ss = *ss_ptr;
+
       size_t result = processChunk(ss);
+
+      delete ss_ptr;
 
       MessageWork response(Message::Type::RESPONSE);
       response.result = result;
@@ -52,7 +66,7 @@ void Worker::run() {
    }
 }
 
-size_t Worker::processChunk(std::stringstream &chunkName) {
+size_t Worker::processChunk(std::istream &chunkName) {
    size_t result = 0;
    for (std::string row; std::getline(chunkName, row, '\n');) {
       std::stringstream rowStream = std::stringstream(std::move(row));
@@ -75,4 +89,8 @@ size_t Worker::processChunk(std::stringstream &chunkName) {
    }
 
    return result;
+}
+
+Worker::~Worker(){
+   delete blobClient;
 }

@@ -12,7 +12,6 @@ int main(int argc, char* argv[]) {
       return 1;
    }
 
-   CurlGlobalSetup curlSetup;
    Worker w(argv[1], atoi(argv[2]));
    w.run();
 

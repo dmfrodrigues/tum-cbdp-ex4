@@ -14,6 +14,7 @@
 #include <cassert>
 #include <algorithm>
 
+#include "../Blob/AzureBlobClient.h"
 
 using namespace std;
 
@@ -30,6 +31,16 @@ Coordinator::Coordinator(const int port) {
    pfd.fd = socket.getSd();
    pfd.events = POLLIN;
    pollSockets.push_back(pfd);
+
+   const string AZURE_ACCOUNT_NAME = "cbdpg43";
+   const string AZURE_ACCESS_TOKEN = "HCGMVgxsvZe6BqYW+nEEFiu+9k/Jxe+hf0GkZbNr96jcl+EtzPwgm5RqdcocAr6kkasnWM5yffnx+AStY7u0+Q==";
+   const string containerName = "mycontainer1";
+   blobClient = new AzureBlobClient(
+      AZURE_ACCOUNT_NAME,
+      AZURE_ACCESS_TOKEN,
+      containerName,
+      false
+   );
 }
 
 void Coordinator::acceptConnection() {
@@ -195,10 +206,8 @@ size_t Coordinator::processFile(std::string listUrl) {
    unfinishedChunks = 0;
    
    // Download the file list
-   auto curl = CurlEasyPtr::easyInit();
-   curl.setUrl(listUrl);
-   stringstream chunks = curl.performToStringStream();
-
+   istream *chunks_ptr = blobClient->get(listUrl);
+   istream &chunks = *chunks_ptr;
 
    string nextChunk;
    do {
@@ -208,6 +217,7 @@ size_t Coordinator::processFile(std::string listUrl) {
       remainingChunks.push(nextChunk);
    } while(!chunks.eof());
 
+   delete chunks_ptr;
 
    do { // Until result
       loop();
@@ -221,4 +231,8 @@ size_t Coordinator::processFile(std::string listUrl) {
    #endif
 
    return totalResults;
+}
+
+Coordinator::~Coordinator(){
+   delete blobClient;
 }
